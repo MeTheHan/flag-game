@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bayrak Tahmin Oyunu</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            margin: 20px 0;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .game-info {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .level-selector {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .level-btn {
+            padding: 12px 25px;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .level-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .easy {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .medium {
+            background-color: #FF9800;
+            color: white;
+        }
+
+        .hard {
+            background-color: #F44336;
+            color: white;
+        }
+
+        .impossible {
+            background-color: #9C27B0;
+            color: white;
+        }
+
+        .game-area {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .flag-container {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .flag-image {
+            max-width: 100%;
+            max-height: 200px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        @media (max-width: 600px) {
+            .options {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .option-btn {
+            padding: 15px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .option-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            transform: scale(1.03);
+        }
+
+        .score {
+            font-size: 1.2rem;
+            margin: 15px 0;
+        }
+
+        .result {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 15px 0;
+            min-height: 40px;
+        }
+
+        .correct {
+            color: #4CAF50;
+        }
+
+        .incorrect {
+            color: #F44336;
+        }
+
+        .next-btn {
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px 0;
+            transition: all 0.3s ease;
+        }
+
+        .next-btn:hover {
+            background-color: #0b7dda;
+            transform: scale(1.05);
+        }
+
+        .game-over {
+            display: none;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .restart-btn {
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            background-color: #FF9800;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 15px 0;
+            transition: all 0.3s ease;
+        }
+
+        .restart-btn:hover {
+            background-color: #e68a00;
+            transform: scale(1.05);
+        }
+
+        .badges-section {
+            margin-top: 30px;
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .badges-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .badge {
+            background-color: rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            padding: 15px;
+            width: 180px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .badge.locked {
+            opacity: 0.5;
+        }
+
+        .badge.unlocked {
+            background-color: rgba(76, 175, 80, 0.3);
+            border: 2px solid #4CAF50;
+        }
+
+        .badge.platinum {
+            background: linear-gradient(135deg, #e5e4e2, #b9b9b9);
+            border: 3px solid gold;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+            animation: platinumGlow 3s infinite alternate;
+        }
+
+        @keyframes platinumGlow {
+            0% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.5); }
+            100% { box-shadow: 0 0 30px rgba(255, 215, 0, 0.8), 0 0 40px rgba(255, 215, 0, 0.6); }
+        }
+
+        .badge-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .badge-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .badge-desc {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .youtube-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 25px;
+            background-color: #FF0000;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .youtube-btn:hover {
+            background-color: #CC0000;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .youtube-icon {
+            font-size: 1.5rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background-color: #4CAF50;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        /* Platinum Başarım Animasyonu */
+        .platinum-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            flex-direction: column;
+        }
+
+        .platinum-card {
+            background: linear-gradient(135deg, #e5e4e2, #b9b9b9);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 0 50px gold;
+            border: 5px solid gold;
+            transform: scale(0);
+            animation: platinumReveal 2s forwards;
+            position: relative;
+            overflow: hidden;
+        }
+
+        @keyframes platinumReveal {
+            0% { transform: scale(0) rotate(-20deg); opacity: 0; }
+            70% { transform: scale(1.1) rotate(5deg); opacity: 1; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+
+        .platinum-logo {
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 20px;
+            background: white;
+            border-radius: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 3px solid gold;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .platinum-logo img {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 10px;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .platinum-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+        }
+
+        .platinum-subtitle {
+            font-size: 1.5rem;
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+        .platinum-badge-name {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #222;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+        }
+
+        .platinum-game-name {
+            font-size: 1.2rem;
+            color: #444;
+            margin-bottom: 30px;
+        }
+
+        .platinum-close {
+            padding: 10px 25px;
+            background: gold;
+            color: #333;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .platinum-close:hover {
+            background: #ffd700;
+            transform: scale(1.05);
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: gold;
+            border-radius: 50%;
+            animation: confettiFall 5s linear forwards;
+        }
+
+        @keyframes confettiFall {
+            0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Bayrak Tahmin Oyunu</h1>
+        
+        <div class="game-info">
+            <p>Seviye seçin ve bayrakları tahmin edin! Zorluk arttıkça daha az bilinen bayraklar karşınıza çıkacak.</p>
+        </div>
+        
+        <div class="level-selector">
+            <button class="level-btn easy" data-level="easy">Kolay</button>
+            <button class="level-btn medium" data-level="medium">Orta</button>
+            <button class="level-btn hard" data-level="hard">Zor</button>
+            <button class="level-btn impossible" data-level="impossible">İMKANSIZ</button>
+        </div>
+        
+        <div class="game-area" id="gameArea">
+            <div class="score" id="score">Skor: 0</div>
+            <div class="flag-container">
+                <img id="flagImage" class="flag-image" src="" alt="Bayrak">
+            </div>
+            <div class="options" id="options">
+                <!-- Seçenekler buraya JavaScript ile eklenecek -->
+            </div>
+            <div class="result" id="result"></div>
+            <button class="next-btn" id="nextBtn" style="display: none;">Sonraki Soru</button>
+        </div>
+        
+        <div class="game-over" id="gameOver">
+            <h2>Oyun Bitti!</h2>
+            <p id="finalScore">Skorunuz: 0</p>
+            <button class="restart-btn" id="restartBtn">Tekrar Oyna</button>
+        </div>
+        
+        <div class="badges-section">
+            <h2>Başarımlar</h2>
+            <div class="badges-container" id="badgesContainer">
+                <!-- Başarımlar buraya JavaScript ile eklenecek -->
+            </div>
+        </div>
+        
+        <a href="https://www.youtube.com/@mtechnow" target="_blank" class="youtube-btn">
+            <span class="youtube-icon">▶️</span>
+            <span>@mtechnow</span>
+        </a>
+    </div>
+
+    <!-- Platinum Başarım Animasyonu -->
+    <div class="platinum-overlay" id="platinumOverlay">
+        <div class="platinum-card">
+            <div class="platinum-logo">
+                <!-- Buraya kendi platinum görseliniz gelecek -->
+                <div style="width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; background: linear-gradient(135deg, #1e3c72, #2a5298); color: white; border-radius: 12px; padding: 10px; text-align: center;">
+                    <div style="font-size: 1.2rem; font-weight: bold; margin-bottom: 5px;">MTECHNO'S</div>
+                    <div style="font-size: 1.8rem; font-weight: bold; color: gold; margin-bottom: 5px;">PLATINUM</div>
+                    <div style="font-size: 1.2rem; font-weight: bold; margin-bottom: 5px;">BADGE</div>
+                    <div style="font-size: 0.8rem;">(FLAG-GAME)</div>
+                </div>
+            </div>
+            <div class="platinum-title">PLATINUM KAZANDINIZ!</div>
+            <div class="platinum-subtitle">Tüm Başarımlar Tamamlandı</div>
+            <div class="platinum-badge-name">MTECHNO'S PLATINUM BADGE</div>
+            <div class="platinum-game-name">(FLAG-GAME)</div>
+            <button class="platinum-close" id="platinumClose">Harika!</button>
+        </div>
+    </div>
+
+    <script>
+        // Bayrak verileri - ÇOK DAHA FAZLA BAYRAK
+        const flags = {
+            easy: [
+                { country: "Türkiye", flag: "https://flagcdn.com/w320/tr.png" },
+                { country: "Almanya", flag: "https://flagcdn.com/w320/de.png" },
+                { country: "Fransa", flag: "https://flagcdn.com/w320/fr.png" },
+                { country: "İtalya", flag: "https://flagcdn.com/w320/it.png" },
+                { country: "İspanya", flag: "https://flagcdn.com/w320/es.png" },
+                { country: "İngiltere", flag: "https://flagcdn.com/w320/gb.png" },
+                { country: "ABD", flag: "https://flagcdn.com/w320/us.png" },
+                { country: "Japonya", flag: "https://flagcdn.com/w320/jp.png" },
+                { country: "Çin", flag: "https://flagcdn.com/w320/cn.png" },
+                { country: "Rusya", flag: "https://flagcdn.com/w320/ru.png" },
+                { country: "Brezilya", flag: "https://flagcdn.com/w320/br.png" },
+                { country: "Kanada", flag: "https://flagcdn.com/w320/ca.png" },
+                { country: "Avustralya", flag: "https://flagcdn.com/w320/au.png" },
+                { country: "Meksika", flag: "https://flagcdn.com/w320/mx.png" },
+                { country: "Güney Kore", flag: "https://flagcdn.com/w320/kr.png" },
+                { country: "Hindistan", flag: "https://flagcdn.com/w320/in.png" },
+                { country: "Arjantin", flag: "https://flagcdn.com/w320/ar.png" },
+                { country: "Mısır", flag: "https://flagcdn.com/w320/eg.png" },
+                { country: "Güney Afrika", flag: "https://flagcdn.com/w320/za.png" },
+                { country: "İsviçre", flag: "https://flagcdn.com/w320/ch.png" }
+            ],
+            medium: [
+                { country: "Polonya", flag: "https://flagcdn.com/w320/pl.png" },
+                { country: "Macaristan", flag: "https://flagcdn.com/w320/hu.png" },
+                { country: "Çekya", flag: "https://flagcdn.com/w320/cz.png" },
+                { country: "Portekiz", flag: "https://flagcdn.com/w320/pt.png" },
+                { country: "Hollanda", flag: "https://flagcdn.com/w320/nl.png" },
+                { country: "Belçika", flag: "https://flagcdn.com/w320/be.png" },
+                { country: "İsveç", flag: "https://flagcdn.com/w320/se.png" },
+                { country: "Norveç", flag: "https://flagcdn.com/w320/no.png" },
+                { country: "Danimarka", flag: "https://flagcdn.com/w320/dk.png" },
+                { country: "Finlandiya", flag: "https://flagcdn.com/w320/fi.png" },
+                { country: "Avusturya", flag: "https://flagcdn.com/w320/at.png" },
+                { country: "İrlanda", flag: "https://flagcdn.com/w320/ie.png" },
+                { country: "Yeni Zelanda", flag: "https://flagcdn.com/w320/nz.png" },
+                { country: "İsrail", flag: "https://flagcdn.com/w320/il.png" },
+                { country: "Tayland", flag: "https://flagcdn.com/w320/th.png" },
+                { country: "Malezya", flag: "https://flagcdn.com/w320/my.png" },
+                { country: "Singapur", flag: "https://flagcdn.com/w320/sg.png" },
+                { country: "Filipinler", flag: "https://flagcdn.com/w320/ph.png" },
+                { country: "Vietnam", flag: "https://flagcdn.com/w320/vn.png" },
+                { country: "Endonezya", flag: "https://flagcdn.com/w320/id.png" }
+            ],
+            hard: [
+                { country: "Estonya", flag: "https://flagcdn.com/w320/ee.png" },
+                { country: "Letonya", flag: "https://flagcdn.com/w320/lv.png" },
+                { country: "Litvanya", flag: "https://flagcdn.com/w320/lt.png" },
+                { country: "Slovakya", flag: "https://flagcdn.com/w320/sk.png" },
+                { country: "Slovenya", flag: "https://flagcdn.com/w320/si.png" },
+                { country: "Hırvatistan", flag: "https://flagcdn.com/w320/hr.png" },
+                { country: "Bulgaristan", flag: "https://flagcdn.com/w320/bg.png" },
+                { country: "Romanya", flag: "https://flagcdn.com/w320/ro.png" },
+                { country: "Yunanistan", flag: "https://flagcdn.com/w320/gr.png" },
+                { country: "Ukrayna", flag: "https://flagcdn.com/w320/ua.png" },
+                { country: "Sırbistan", flag: "https://flagcdn.com/w320/rs.png" },
+                { country: "Bosna Hersek", flag: "https://flagcdn.com/w320/ba.png" },
+                { country: "Kuzey Makedonya", flag: "https://flagcdn.com/w320/mk.png" },
+                { country: "Karadağ", flag: "https://flagcdn.com/w320/me.png" },
+                { country: "Arnavutluk", flag: "https://flagcdn.com/w320/al.png" },
+                { country: "Moldova", flag: "https://flagcdn.com/w320/md.png" },
+                { country: "Belarus", flag: "https://flagcdn.com/w320/by.png" },
+                { country: "Gürcistan", flag: "https://flagcdn.com/w320/ge.png" },
+                { country: "Ermenistan", flag: "https://flagcdn.com/w320/am.png" },
+                { country: "Azerbaycan", flag: "https://flagcdn.com/w320/az.png" }
+            ],
+            impossible: [
+                { country: "Malavi", flag: "https://flagcdn.com/w320/mw.png" },
+                { country: "Kiribati", flag: "https://flagcdn.com/w320/ki.png" },
+                { country: "Tuvalu", flag: "https://flagcdn.com/w320/tv.png" },
+                { country: "Nauru", flag: "https://flagcdn.com/w320/nr.png" },
+                { country: "Palau", flag: "https://flagcdn.com/w320/pw.png" },
+                { country: "Mikronezya", flag: "https://flagcdn.com/w320/fm.png" },
+                { country: "Marshall Adaları", flag: "https://flagcdn.com/w320/mh.png" },
+                { country: "Vanuatu", flag: "https://flagcdn.com/w320/vu.png" },
+                { country: "Solomon Adaları", flag: "https://flagcdn.com/w320/sb.png" },
+                { country: "Komorlar", flag: "https://flagcdn.com/w320/km.png" },
+                { country: "São Tomé ve Príncipe", flag: "https://flagcdn.com/w320/st.png" },
+                { country: "Yeşil Burun Adaları", flag: "https://flagcdn.com/w320/cv.png" },
+                { country: "Gine-Bissau", flag: "https://flagcdn.com/w320/gw.png" },
+                { country: "Esvatini", flag: "https://flagcdn.com/w320/sz.png" },
+                { country: "Lesotho", flag: "https://flagcdn.com/w320/ls.png" },
+                { country: "Bhutan", flag: "https://flagcdn.com/w320/bt.png" },
+                { country: "Timor-Leste", flag: "https://flagcdn.com/w320/tl.png" },
+                { country: "Brunei", flag: "https://flagcdn.com/w320/bn.png" },
+                { country: "Maldivler", flag: "https://flagcdn.com/w320/mv.png" },
+                { country: "Surinam", flag: "https://flagcdn.com/w320/sr.png" }
+            ]
+        };
+
+        // Başarımlar
+        const badges = [
+            {
+                id: "welcome",
+                name: "Hoş Geldin",
+                description: "Web sitesine hoş geldin!",
+                icon: "👋",
+                condition: () => true, // Her zaman kazanılmış
+                progress: () => 100
+            },
+            {
+                id: "first_correct",
+                name: "Güzel Başlangıç",
+                description: "İlk sorunu doğru bildin!",
+                icon: "🚀",
+                condition: (stats) => stats.totalCorrectAnswers >= 1,
+                progress: (stats) => Math.min(stats.totalCorrectAnswers, 1) * 100
+            },
+            {
+                id: "flag_professor",
+                name: "Bayrak Profesörü",
+                description: "Tüm bayrakları artık biliyorsun!",
+                icon: "🎓",
+                condition: (stats) => stats.totalCorrectAnswers >= 100,
+                progress: (stats) => Math.min(stats.totalCorrectAnswers / 100, 1) * 100
+            },
+            {
+                id: "diamond_elite",
+                name: "Diamond Elite Platinum",
+                description: "TÜM BAYRAKLARI TEK SEFERDE BİLDİN! SEN BİR DAHİSİN!!!",
+                icon: "💎",
+                condition: (stats) => stats.perfectGames >= 1,
+                progress: (stats) => Math.min(stats.perfectGames, 1) * 100
+            },
+            {
+                id: "flag_enthusiast",
+                name: "Bayrak Tutkunu",
+                description: "Oyunu 15 dakika oynadın!",
+                icon: "⏱️",
+                condition: (stats) => stats.totalPlayTime >= 15 * 60, // 15 dakika saniye cinsinden
+                progress: (stats) => Math.min(stats.totalPlayTime / (15 * 60), 1) * 100
+            },
+            {
+                id: "level_master",
+                name: "Seviye Ustası",
+                description: "Tüm seviyeleri tamamladın!",
+                icon: "🏆",
+                condition: (stats) => stats.completedLevels.easy && stats.completedLevels.medium && 
+                                    stats.completedLevels.hard && stats.completedLevels.impossible,
+                progress: (stats) => {
+                    let count = 0;
+                    if (stats.completedLevels.easy) count++;
+                    if (stats.completedLevels.medium) count++;
+                    if (stats.completedLevels.hard) count++;
+                    if (stats.completedLevels.impossible) count++;
+                    return (count / 4) * 100;
+                }
+            },
+            {
+                id: "platinum",
+                name: "MTECHNO'S PLATINUM BADGE",
+                description: "Tüm başarımları tamamladın!",
+                icon: "🏆",
+                condition: (stats) => {
+                    // Diğer tüm başarımların kazanıldığını kontrol et
+                    return badges.filter(badge => badge.id !== "platinum")
+                               .every(badge => badge.condition(stats));
+                },
+                progress: (stats) => {
+                    const earnedBadges = badges.filter(badge => badge.id !== "platinum" && badge.condition(stats)).length;
+                    return (earnedBadges / (badges.length - 1)) * 100;
+                }
+            }
+        ];
+
+        // Oyun değişkenleri
+        let currentLevel = '';
+        let currentQuestion = 0;
+        let score = 0;
+        let questions = [];
+        let usedQuestions = [];
+        let gameStats = {
+            totalCorrectAnswers: 0,
+            totalPlayTime: 0,
+            perfectGames: 0,
+            completedLevels: {
+                easy: false,
+                medium: false,
+                hard: false,
+                impossible: false
+            },
+            badgesEarned: []
+        };
+        let gameStartTime = 0;
+
+        // DOM elementleri
+        const levelButtons = document.querySelectorAll('.level-btn');
+        const gameArea = document.getElementById('gameArea');
+        const flagImage = document.getElementById('flagImage');
+        const optionsContainer = document.getElementById('options');
+        const resultDisplay = document.getElementById('result');
+        const nextButton = document.getElementById('nextBtn');
+        const scoreDisplay = document.getElementById('score');
+        const gameOverScreen = document.getElementById('gameOver');
+        const finalScoreDisplay = document.getElementById('finalScore');
+        const restartButton = document.getElementById('restartBtn');
+        const badgesContainer = document.getElementById('badgesContainer');
+        const platinumOverlay = document.getElementById('platinumOverlay');
+        const platinumClose = document.getElementById('platinumClose');
+
+        // Sayfa yüklendiğinde
+        window.addEventListener('load', () => {
+            loadGameStats();
+            updateBadgesDisplay();
+            // Hoş geldin başarımını otomatik olarak ver
+            if (!gameStats.badgesEarned.includes("welcome")) {
+                gameStats.badgesEarned.push("welcome");
+                saveGameStats();
+            }
+        });
+
+        // Seviye seçimi
+        levelButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                currentLevel = button.getAttribute('data-level');
+                startGame();
+            });
+        });
+
+        // Oyunu başlat
+        function startGame() {
+            currentQuestion = 0;
+            score = 0;
+            questions = [...flags[currentLevel]];
+            usedQuestions = [];
+            gameStartTime = Date.now();
+            
+            // Seviye seçimini gizle, oyun alanını göster
+            document.querySelector('.level-selector').style.display = 'none';
+            gameArea.style.display = 'block';
+            gameOverScreen.style.display = 'none';
+            
+            updateScore();
+            showQuestion();
+        }
+
+        // Soruyu göster
+        function showQuestion() {
+            // Kullanılmamış soruları kontrol et
+            if (usedQuestions.length === questions.length) {
+                endGame();
+                return;
+            }
+            
+            // Rastgele bir soru seç
+            let randomIndex;
+            do {
+                randomIndex = Math.floor(Math.random() * questions.length);
+            } while (usedQuestions.includes(randomIndex));
+            
+            usedQuestions.push(randomIndex);
+            const question = questions[randomIndex];
+            
+            // Bayrağı göster
+            flagImage.src = question.flag;
+            flagImage.alt = `${question.country} bayrağı`;
+            
+            // Seçenekleri oluştur
+            const options = getRandomOptions(question.country, currentLevel);
+            optionsContainer.innerHTML = '';
+            
+            options.forEach(option => {
+                const button = document.createElement('button');
+                button.className = 'option-btn';
+                button.textContent = option;
+                button.addEventListener('click', () => checkAnswer(option, question.country));
+                optionsContainer.appendChild(button);
+            });
+            
+            // Sonuç ve sonraki butonunu gizle
+            resultDisplay.textContent = '';
+            resultDisplay.className = 'result';
+            nextButton.style.display = 'none';
+        }
+
+        // Rastgele seçenekler oluştur
+        function getRandomOptions(correctAnswer, level) {
+            const allCountries = flags[level].map(flag => flag.country);
+            const options = [correctAnswer];
+            
+            // Doğru cevabı hariç tut
+            const otherCountries = allCountries.filter(country => country !== correctAnswer);
+            
+            // Rastgele 3 yanlış cevap seç
+            while (options.length < 4 && otherCountries.length > 0) {
+                const randomIndex = Math.floor(Math.random() * otherCountries.length);
+                options.push(otherCountries[randomIndex]);
+                otherCountries.splice(randomIndex, 1);
+            }
+            
+            // Seçenekleri karıştır
+            return shuffleArray(options);
+        }
+
+        // Diziyi karıştır
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // Cevabı kontrol et
+        function checkAnswer(selected, correct) {
+            const optionButtons = document.querySelectorAll('.option-btn');
+            
+            // Tüm butonları devre dışı bırak
+            optionButtons.forEach(button => {
+                button.disabled = true;
+                
+                // Doğru cevabı yeşil yap
+                if (button.textContent === correct) {
+                    button.style.backgroundColor = '#4CAF50';
+                }
+                
+                // Yanlış cevabı kırmızı yap
+                if (button.textContent === selected && selected !== correct) {
+                    button.style.backgroundColor = '#F44336';
+                }
+            });
+            
+            // Sonucu göster
+            if (selected === correct) {
+                resultDisplay.textContent = 'Doğru!';
+                resultDisplay.className = 'result correct';
+                score += 10;
+                gameStats.totalCorrectAnswers++;
+                
+                // İlk doğru cevap başarımını kontrol et
+                if (gameStats.totalCorrectAnswers === 1 && !gameStats.badgesEarned.includes("first_correct")) {
+                    gameStats.badgesEarned.push("first_correct");
+                    saveGameStats();
+                    updateBadgesDisplay();
+                }
+            } else {
+                resultDisplay.textContent = `Yanlış! Doğru cevap: ${correct}`;
+                resultDisplay.className = 'result incorrect';
+            }
+            
+            updateScore();
+            nextButton.style.display = 'block';
+        }
+
+        // Skoru güncelle
+        function updateScore() {
+            scoreDisplay.textContent = `Skor: ${score}`;
+        }
+
+        // Sonraki soru
+        nextButton.addEventListener('click', showQuestion);
+
+        // Oyunu bitir
+        function endGame() {
+            // Oyun süresini güncelle
+            const gameTime = Math.floor((Date.now() - gameStartTime) / 1000);
+            gameStats.totalPlayTime += gameTime;
+            
+            // Mükemmel oyun başarımını kontrol et
+            if (score === questions.length * 10 && !gameStats.badgesEarned.includes("diamond_elite")) {
+                gameStats.badgesEarned.push("diamond_elite");
+                gameStats.perfectGames++;
+            }
+            
+            // Seviye tamamlama başarımını kontrol et
+            gameStats.completedLevels[currentLevel] = true;
+            
+            // Bayrak profesörü başarımını kontrol et
+            if (gameStats.totalCorrectAnswers >= 100 && !gameStats.badgesEarned.includes("flag_professor")) {
+                gameStats.badgesEarned.push("flag_professor");
+            }
+            
+            // Bayrak tutkunu başarımını kontrol et
+            if (gameStats.totalPlayTime >= 15 * 60 && !gameStats.badgesEarned.includes("flag_enthusiast")) {
+                gameStats.badgesEarned.push("flag_enthusiast");
+            }
+            
+            // Seviye ustası başarımını kontrol et
+            if (gameStats.completedLevels.easy && gameStats.completedLevels.medium && 
+                gameStats.completedLevels.hard && gameStats.completedLevels.impossible && 
+                !gameStats.badgesEarned.includes("level_master")) {
+                gameStats.badgesEarned.push("level_master");
+            }
+            
+            // Platinum başarımını kontrol et
+            const platinumBadge = badges.find(badge => badge.id === "platinum");
+            if (platinumBadge && platinumBadge.condition(gameStats) && !gameStats.badgesEarned.includes("platinum")) {
+                gameStats.badgesEarned.push("platinum");
+                showPlatinumAnimation();
+            }
+            
+            saveGameStats();
+            updateBadgesDisplay();
+            
+            gameArea.style.display = 'none';
+            gameOverScreen.style.display = 'block';
+            finalScoreDisplay.textContent = `Skorunuz: ${score}`;
+        }
+
+        // Tekrar oyna
+        restartButton.addEventListener('click', () => {
+            document.querySelector('.level-selector').style.display = 'flex';
+            gameOverScreen.style.display = 'none';
+        });
+
+        // Başarımları güncelle
+        function updateBadgesDisplay() {
+            badgesContainer.innerHTML = '';
+            
+            badges.forEach(badge => {
+                const isUnlocked = gameStats.badgesEarned.includes(badge.id);
+                const progress = badge.progress(gameStats);
+                const isPlatinum = badge.id === "platinum";
+                
+                const badgeElement = document.createElement('div');
+                badgeElement.className = `badge ${isUnlocked ? (isPlatinum ? 'platinum' : 'unlocked') : 'locked'}`;
+                
+                badgeElement.innerHTML = `
+                    <div class="badge-icon">${badge.icon}</div>
+                    <div class="badge-name">${badge.name} ${isUnlocked ? '✅' : ''}</div>
+                    <div class="badge-desc">${badge.description}</div>
+                    <div class="progress-bar">
+                        <div class="progress" style="width: ${progress}%"></div>
+                    </div>
+                `;
+                
+                badgesContainer.appendChild(badgeElement);
+            });
+        }
+
+        // Oyun istatistiklerini kaydet
+        function saveGameStats() {
+            localStorage.setItem('flagGameStats', JSON.stringify(gameStats));
+        }
+
+        // Oyun istatistiklerini yükle
+        function loadGameStats() {
+            const savedStats = localStorage.getItem('flagGameStats');
+            if (savedStats) {
+                gameStats = JSON.parse(savedStats);
+            }
+        }
+
+        // Platinum animasyonunu göster
+        function showPlatinumAnimation() {
+            platinumOverlay.style.display = 'flex';
+            createConfetti();
+        }
+
+        // Konfeti efekti oluştur
+        function createConfetti() {
+            const colors = ['#FFD700', '#FFA500', '#FF6347', '#00FF7F', '#1E90FF', '#8A2BE2'];
+            for (let i = 0; i < 150; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDelay = Math.random() * 5 + 's';
+                confetti.style.width = Math.random() * 10 + 5 + 'px';
+                confetti.style.height = Math.random() * 10 + 5 + 'px';
+                platinumOverlay.appendChild(confetti);
+            }
+        }
+
+        // Platinum animasyonunu kapat
+        platinumClose.addEventListener('click', () => {
+            platinumOverlay.style.display = 'none';
+            // Konfetileri temizle
+            const confettiElements = platinumOverlay.querySelectorAll('.confetti');
+            confettiElements.forEach(confetti => confetti.remove());
+        });
+    </script>
+</body>
+</html>
